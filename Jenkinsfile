@@ -1,4 +1,9 @@
 pipeline {
+     environment { 
+        registry = "anrad13/tomcatsamplewebapp" 
+        registryCredential = 'dockerhub_id' 
+        dockerImage = '' 
+    }
     agent any
     stages {
         stage('Build Application') {
@@ -15,16 +20,26 @@ pipeline {
 
         stage('Create Tomcat Docker Image'){
             steps {
-                sh "pwd"
-                sh "ls -a"
                 sh "docker build . -t anrad13/tomcatsamplewebapp:${env.BUILD_ID}"
             }
         }
-        stage('Push Tomcat Docker Image to Docker Hub'){
-            steps {
-                sh "docker push anrad13/tomcatsamplewebapp:${env.BUILD_ID}"
-            }
+        
+        stage('Building our image') { 
+            steps { 
+                script { 
+                    dockerImage = docker.build registry + ":$BUILD_NUMBER" 
+                }
+            } 
         }
+        stage('Deploy our image') { 
+            steps { 
+                script { 
+                    docker.withRegistry( '', registryCredential ) { 
+                        dockerImage.push() 
+                    }
+                } 
+            }
+        } 
         
     }
 }
