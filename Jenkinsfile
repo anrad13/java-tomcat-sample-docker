@@ -18,9 +18,12 @@ pipeline {
             }
         }
 
-        stage('Create Tomcat Docker Image'){
+        stage('Create Tomcat Docker Image and push it to github'){
             steps {
                 sh "docker build . -t anrad13/tomcatsamplewebapp:${env.BUILD_ID}"
+                //sh "docker login --username=user --password=password
+                //sh "docker push anrad13/tomcatsamplewebapp:${env.BUILD_ID}"
+                    
             }
         }
         
